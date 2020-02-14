@@ -51,8 +51,10 @@ The component **_does not_** support inline function declarations, such as:
  - `onClick={function (event) { /* do stuff */ }}`, or
  - `onKeyPress={event => { /* do stuff */}}`
 
-The component **_does_** support inline arrow functions with a simple statement, such as: 
- - `{ [1,2].map( value => <span>{value}</span> ) }`
+However, the component **_does_** support inline arrow functions with a simple statement, such as: 
+ - Works: `{ [1,2].map( value => <span>{value}</span> ) }`
+ - Does not work: `{ [1,2].map( value => { return <span>{value}</span>; } ) }`
+
 
 This is to prevent inadvertent XSS attack vectors. Since the primary use of this component is to allow JSX to be stored server-side, and then late-interpreted at the client-side, this restriction prevents a malicious user from stealing info by executing a situation like:
 ```javascript
@@ -65,6 +67,7 @@ This is to prevent inadvertent XSS attack vectors. Since the primary use of this
   }}
 />
 ```
+
 
 ## Advanced Usage - Injecting Dynamic JSX
 ```javascript
