@@ -941,6 +941,17 @@ describe('JsxParser Component', () => {
       expect(component.ParsedChildren[0].props.testProp).toEqual(false)
     })
   })
+  describe('Arrow functions', () => {
+    it('can execute JSX expression inside arrow function', () => {
+      const { rendered, component } = render(<JsxParser jsx={'{["a","b"].map(c => <span>{c}</span> )}'} />)
+      expect(rendered.childNodes[0].textContent).toEqual('a')
+      expect(rendered.childNodes[1].textContent).toEqual('b')
+    })
+    it('can only execute a single line expression', () => {
+      const { rendered, component } = render(<JsxParser jsx={'{["a","b"].map(c => { return <span>{c}</span>; } )}'} />);
+      expect(rendered.childNodes.length).toEqual(0);
+    })
+  })
   describe('React.Children.only()', () => {
     // eslint-disable-next-line react/prop-types
     const OnlyOne = ({ children }) => (

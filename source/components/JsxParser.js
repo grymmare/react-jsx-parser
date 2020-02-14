@@ -32,6 +32,7 @@ export default class JsxParser extends Component {
   parseJSX = rawJSX => {
     const wrappedJsx = `<root>${rawJSX}</root>`
     let parsed = []
+    this.bindings = this.props.bindings;
     try {
       parsed = parser.parse(wrappedJsx)
       parsed = parsed.body[0].expression.children || []
@@ -87,12 +88,29 @@ export default class JsxParser extends Component {
           return undefined
         }
         return parsedCallee(...expression.arguments.map(this.parseExpression))
+      case 'ArrowFunctionExpression':
+        return (...args) => {
+          const bindings = this.bindings;
+
+          expression.params.forEach( (param, i) => {
+                this.bindings = {
+                  ...bindings,
+                  [param.name]: args[i],
+                };
+              }
+          );
+          const result = this.parseExpression(expression.body);
+
+          this.bindings = bindings;
+
+          return result;
+        };
       case 'ConditionalExpression':
         return this.parseExpression(expression.test)
           ? this.parseExpression(expression.consequent)
           : this.parseExpression(expression.alternate)
       case 'Identifier':
-        return (this.props.bindings || {})[expression.name]
+        return (this.bindings || {})[expression.name]
       case 'Literal':
         return expression.value
       case 'LogicalExpression':
